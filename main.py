@@ -1,26 +1,4 @@
-#!/usr/bin/env python3
-"""
-APRS.fi Station Tracker
-------------------------
-A Tkinter GUI for tracking one or more APRS callsigns/objects via the
-aprs.fi API (https://aprs.fi/page/api), with a built-in slippy-tile map
-(street + satellite) showing live station positions.
 
-Dependencies:
-    - Standard library only for everything except satellite imagery.
-    - Satellite tiles are JPEG, which Tk's native PhotoImage can't decode,
-      so Pillow is used for that one case:
-          pip install pillow --break-system-packages
-      If Pillow isn't installed, the app still runs fine - satellite mode
-      just won't be selectable (street/topo tiles are PNG and need no
-      extra dependency at all).
-
-You need a free aprs.fi API key: log in at https://aprs.fi -> "your account"
--> "API access" tab, and generate a read key.
-
-Usage:
-    python3 aprs_tracker.py
-"""
 
 import json
 import math
@@ -47,7 +25,6 @@ API_URL = "https://api.aprs.fi/api/get"
 USER_AGENT = "aprs-tracker-tk/1.1"
 TILE_SIZE = 256
 
-# name -> (url template, file extension, needs_pillow, max_zoom, attribution)
 TILE_SOURCES = {
     "Street (OpenStreetMap)": (
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -63,9 +40,7 @@ TILE_SOURCES = {
     ),
 }
 
-# APRS symbol sprite sheets (hessu/aprs-symbols, CC-BY-SA), one per symbol
-# table. Each sheet is a 16-column x 6-row grid of 24x24 PNG icons, indexed
-# by ASCII code point: idx = ord(code_char) - 33, row = idx // 16, col = idx % 16.
+
 SYMBOL_CELL = 24
 SYMBOL_GRID_COLS = 16
 SYMBOL_SHEET_URLS = {
@@ -74,9 +49,7 @@ SYMBOL_SHEET_URLS = {
 }
 
 
-# --------------------------------------------------------------------------
-# Config persistence
-# --------------------------------------------------------------------------
+# -----------------------
 def load_config():
     if os.path.exists(CONFIG_PATH):
         try:
@@ -96,7 +69,6 @@ def save_config(data):
 
 
 # --------------------------------------------------------------------------
-# aprs.fi API client
 # --------------------------------------------------------------------------
 def fetch_positions(api_key, callsigns):
     names = ",".join(c.strip() for c in callsigns if c.strip())
@@ -127,7 +99,6 @@ def fetch_positions(api_key, callsigns):
 
 
 # --------------------------------------------------------------------------
-# Slippy-tile map math (Web Mercator)
 # --------------------------------------------------------------------------
 def lonlat_to_world_px(lon, lat, zoom):
     n = 2 ** zoom
@@ -147,8 +118,7 @@ def world_px_to_lonlat(x, y, zoom):
 
 
 # --------------------------------------------------------------------------
-# Tile map widget
-# --------------------------------------------------------------------------
+
 class TileMapWidget(tk.Frame):
     def __init__(self, master, on_marker_click=None, **kwargs):
         super().__init__(master, **kwargs)
